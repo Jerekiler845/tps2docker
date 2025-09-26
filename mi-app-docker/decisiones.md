@@ -143,3 +143,30 @@ miapp=# SELECT * FROM tabla_ejemplo;
 
 miapp=#
 miapp=# exit
+
+¿Cuál es la diferencia entre CMD y ENTRYPOINT?
+cmd
+Define el comando por defecto.
+Puede ser sobrescrito fácilmente si al ejecutar docker run agregás otro comando.
+y entrypoint 
+Define el proceso principal del contenedor.
+Es más rígido: el comando de docker run se pasa como argumento al ENTRYPOINT, no lo reemplaza.
+Usás CMD cuando querés un comando por defecto flexible.
+Usás ENTRYPOINT cuando tu contenedor es un ejecutable fijo (ej: postgres, nginx) y solo aceptará argumentos.
+
+¿Qué es un volumen en Docker y cómo lo implementaste?
+
+Un volumen en Docker es un mecanismo de persistencia de datos que guarda la información fuera del ciclo de vida del contenedor.
+Los contenedores pueden ser eliminados/recreados, pero los datos almacenados en un volumen permanecen.
+Son gestionados por Docker, se guardan en el host y se pueden compartir entre contenedores.
+
+Defini volúmenes para las bases de datos en docker-compose.yml:
+volumes:
+  db_qa_data:
+  db_prod_data:
+
+Luego los asoci a los contenedores db_qa y db_prod.
+Esto permite que:
+Los datos insertados en QA y PROD se conserven entre reinicios (docker-compose down && docker-compose up).
+QA y PROD tengan almacenamientos separados, evitando que se mezclen los datos de pruebas con los de producción.
+
