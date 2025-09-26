@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  db_qa:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_qa_db
+    volumes:
+      - db_data_qa:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+
+  db_prod:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: prod_secret
+      POSTGRES_DB: app_prod_db
+    volumes:
+      - db_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+
+  app_qa:
+    build: .
+    image: ${DOCKERHUB_USERNAME:-miusuario}/mi-app:dev
+    env_file: .env.qa
+    ports:
+      - "3000:3000"
+    depends_on:
+      db_qa:
+        condition: service_healthy
+
+  app_prod:
+    image: ${DOCKERHUB_USERNAME:-miusuario}/mi-app:dev
+    env_file: .env.prod
+    ports:
+      - "3001:3000"
+    depends_on:
+      db_prod:
+        condition: service_healthy
+
+volumes:
+  db_data_qa:
+  db_data_prod:
